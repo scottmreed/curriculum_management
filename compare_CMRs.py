@@ -9,6 +9,8 @@ import decimal
 from pathlib import Path
 from datetime import date
 import glob
+import datetime
+import numpy as np
 
 
 def format_number(num):
@@ -160,10 +162,20 @@ if __name__ == '__main__':
        df_filtered_mod = df_modified_file.iloc[:, filtered_columns]
 
 
-    print('83 ', df_filtered_mod[83])
+    # print('83 ', df_filtered_mod[83])
+    # print('67 ', df_filtered_mod[67:68])
+
+    df_time = df_filtered_mod.iloc[:,[19,20]]
+    time_start = df_filtered_mod.iloc[:,19]
+    time_stop = df_filtered_mod.iloc[:, 20]
+    date_time_start = datetime.datetime.strptime(time_start[1], '%H:%M:%S.%f_%p')
+    date_time_end = datetime.datetime.strptime(time_stop[1], '%H:%M:%S.%f_%p')
+    time_range = date_time_end - date_time_start
+    print('df_time ', time_range)
+
     df_instructor = df_filtered_mod.iloc[:,[3,6,8,17,23]]
-    print('df_instructor ', df_instructor)
     print(df_instructor.shape)
+    print('df_instructor ', df_instructor)
     # ff = pd.pivot_table(df_instructor, values=['83'], index=['53', '83'], columns=['53'], aggfunc=np.sum, fill_value=0)
 
 
