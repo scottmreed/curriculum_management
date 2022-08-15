@@ -25,9 +25,9 @@ def latest_edited_file_glob(pathToDir, **kwargs):
     pathTest = os.path.dirname(__file__)
 
     if pathToDir == 'ori':
-        ori_file_path = os.path.join(pathTest, 'data', 'ori', 'CLASSCHED.csv')
+        ori_file_path = os.path.join(pathTest, 'data', 'ori', 'CLASSCHED.CSV')
         if not os.path.isfile(ori_file_path):
-            print('ori is empty. assume you want to compare to most recent colored diff')
+            print('ori is empty. assume you want to compare to most recent color diff')
             latest_file = 'empty'
         else:
             list_of_files = glob.glob(
@@ -123,21 +123,25 @@ if __name__ == '__main__':
     if pathFile == 'empty':
         pathFile = os.path.join(pathTest, "color_diffs", f"{modified_term}")
         list_of_files = glob.glob(
-            os.path.join(pathFile, '*.csv'))  # * means all if need specific format then *.csv
-        latest_file = max(list_of_files, key=os.path.getctime)
-        pathFile = latest_file
-        print("glob latest_file:" + latest_file)
+            os.path.join(pathFile, '*.CSV'))  # * means all if need specific format then *.csv
+        if list_of_files:
+            latest_file = max(list_of_files, key=os.path.getctime)
+            pathFile = latest_file
+            print("glob latest_file:" + latest_file)
+            modified = os.path.getmtime(pathFile)
+            year, month, day, hour = time.localtime(modified)[:-5]
+            ori_date = str(str(year) + '_' + str(month) + '_' + str(day))
+        else:
+            Path("color_diffs/" + modified_term).mkdir(parents=True, exist_ok=True)
         # modified = os.path.getmtime(pathFile)
         # year, month, day, hour = time.localtime(modified)[:-5]
         # ori_date = str(str(year) + '_' + str(month) + '_' + str(day))
 
     # ori_file_path = os.path.join(pathTest, 'data', 'ori', 'CLASSCHED.csv')
     # if not os.path.isfile(ori_file_path):
-    #     print('ori is empty. assume you want to compare to most recent colored diff')
+    #     print('ori is empty. assume you want to compare to most recent color diff')
     #     pathFile = os.path.join(pathTest, "color_diffs", f"{modified_term}", '*')
-        modified = os.path.getmtime(pathFile)
-        year, month, day, hour = time.localtime(modified)[:-5]
-        ori_date = str(str(year) + '_' + str(month) + '_' + str(day))
+
         # ori_date = time.ctime(os.path.getmtime(pathFile))
     else:
         modified = os.path.getmtime(pathFile)
@@ -165,17 +169,17 @@ if __name__ == '__main__':
     # print('83 ', df_filtered_mod[83])
     # print('67 ', df_filtered_mod[67:68])
 
-    df_time = df_filtered_mod.iloc[:,[19,20]]
-    time_start = df_filtered_mod.iloc[:,19]
-    time_stop = df_filtered_mod.iloc[:, 20]
-    date_time_start = datetime.datetime.strptime(time_start[1], '%H:%M:%S.%f_%p')
-    date_time_end = datetime.datetime.strptime(time_stop[1], '%H:%M:%S.%f_%p')
-    time_range = date_time_end - date_time_start
-    print('df_time ', time_range)
+    # df_time = df_filtered_mod.iloc[:,[19,20]]
+    # time_start = df_filtered_mod.iloc[:,19]
+    # time_stop = df_filtered_mod.iloc[:, 20]
+    # date_time_start = datetime.datetime.strptime(time_start[1], '%H:%M:%S.%f_%p')
+    # date_time_end = datetime.datetime.strptime(time_stop[1], '%H:%M:%S.%f_%p')
+    # time_range = date_time_end - date_time_start
+    # print('df_time ', time_range)
 
-    df_instructor = df_filtered_mod.iloc[:,[3,6,8,17,23]]
-    print(df_instructor.shape)
-    print('df_instructor ', df_instructor)
+    # df_instructor = df_filtered_mod.iloc[:,[3,6,8,17,23]]
+    # print(df_instructor.shape)
+    # print('df_instructor ', df_instructor)
     # ff = pd.pivot_table(df_instructor, values=['83'], index=['53', '83'], columns=['53'], aggfunc=np.sum, fill_value=0)
 
 
