@@ -162,8 +162,8 @@ if __name__ == '__main__':
 
     df_filtered_ori = df_original_file.iloc[:]
 
-    if len(df_modified_file.columns) > 140:  # avoids applying filters to short files
-       df_filtered_mod = df_modified_file.iloc[:, filtered_columns]
+    if len(df_original_file.columns) > 140:  # avoids applying filters to short files
+       df_filtered_ori = df_original_file.iloc[:, filtered_columns]
 
 
     # print('83 ', df_filtered_mod[83])
