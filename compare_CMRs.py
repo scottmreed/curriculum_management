@@ -25,7 +25,7 @@ def latest_edited_file_glob(pathToDir, **kwargs):
     pathTest = os.path.dirname(__file__)
 
     if pathToDir == 'ori':
-        ori_file_path = os.path.join(pathTest, 'data', 'ori', 'CLASSCHED.CSV')
+        ori_file_path = os.path.join(pathTest, 'data', 'ori', 'CLSSCHED.CSV')
         if not os.path.isfile(ori_file_path):
             print('ori is empty. assume you want to compare to most recent color diff')
             latest_file = 'empty'
@@ -125,7 +125,7 @@ if __name__ == '__main__':
         list_of_files = glob.glob(
             os.path.join(pathFile, '*.CSV'))  # * means all if need specific format then *.csv
         if list_of_files:
-            latest_file = max(list_of_files, key=os.path.getctime)
+            latest_file = max(list_of_files, key=os.path.getmtime)
             pathFile = latest_file
             print("glob latest_file:" + latest_file)
             modified = os.path.getmtime(pathFile)
@@ -168,10 +168,10 @@ if __name__ == '__main__':
 
     # print('83 ', df_filtered_mod[83])
     # print('67 ', df_filtered_mod[67:68])
-
+    #
     # df_time = df_filtered_mod.iloc[:,[19,20]]
-    # time_start = df_filtered_mod.iloc[:,19]
-    # time_stop = df_filtered_mod.iloc[:, 20]
+    # time_start = (df_filtered_mod.iloc[:,19])
+    # time_stop = (df_filtered_mod.iloc[:, 20])
     # date_time_start = datetime.datetime.strptime(time_start[1], '%H:%M:%S.%f_%p')
     # date_time_end = datetime.datetime.strptime(time_stop[1], '%H:%M:%S.%f_%p')
     # time_range = date_time_end - date_time_start
@@ -202,7 +202,8 @@ if __name__ == '__main__':
     df_changes_arranged = df_changes
 
     df_changes_arranged = df_changes_arranged.sort_values(
-        by=[df_changes_arranged.columns[0], df_changes_arranged.columns[7]], ascending=True)
+        by=[df_changes_arranged.columns[0], df_changes_arranged.columns[7]], ascending=True) #arrange by coursenum and class ID
+
     # df_changes_arranged.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_diff_out_arranged.csv', sep=',', index=False,
     #                            header=False)
 
