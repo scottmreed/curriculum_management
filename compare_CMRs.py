@@ -89,10 +89,139 @@ def read_csv(filename):
 
     return df, file_date
 
+
 def duplicate_entry_merger(df):
     df = df.applymap(str)
     df = df.groupby([df.columns[0], df.columns[7]]).agg(" ; ".join).reset_index()
     return df
+
+
+def time_conflict(df):
+    print(df)
+
+    df_timeconflict = pd.DataFrame()
+
+    filtered_columns_TC = [0, 4, 7, 15, 16, 17, 18, 19, 21, 23, 25, 27, 34, 35, 36, 38, 51, 53, 57, 58, 59, 66, 67, 68,
+                           69, 70, 71, 72, 73, 74, 75, 76, 81, 82, 83, 85, 90, 91, 97, 110, 112]
+
+    if len(df.columns) > 140:  # avoids applying filters to short files
+        df = df.iloc[:, filtered_columns_TC]
+
+    for i in range(df.shape[0]):
+        for j in range(df.shape[1]):
+            df.iloc[i, j] = format_number(df.iloc[i, j])
+
+    df = df.replace("TA", np.nan)
+    df = df.dropna(axis=0)
+    df['conflict_group'] = ''
+
+    instructor_list = df.iloc[:, 34].unique().tolist()
+    # print(a)
+    # print(len(a))
+    instructor_list = list(filter(str.strip, instructor_list))
+
+    print(instructor_list)
+    print(len(instructor_list))
+
+    conflict_df = []
+    conflict_df_new = pd.DataFrame()
+
+    # for x in range(7):
+
+    for i in range(len(instructor_list)):
+        # for i in range(3):  # for test purpose
+        temp_df_all = df.loc[df.iloc[:, 34] == instructor_list[i]]
+        # temp_df.to_csv(f'timeconflict_{instructor_list[i]}.csv', sep=',', index=False, header=False)
+        print('temp_df')
+        print(temp_df_all)
+
+        for o in range(7):
+            temp_df = temp_df_all.loc[df.iloc[:, 23 + o] == 'Y']
+
+            if len(temp_df) > 1:
+                for i in range(len(temp_df)):
+                    st1 = datetime.datetime.strptime(temp_df.iloc[i, 21], '%I:%M:%S.%f_%p')
+                    et1 = datetime.datetime.strptime(temp_df.iloc[i, 22], '%I:%M:%S.%f_%p')
+
+                    # DSCIB3 time conflict
+
+                    duplicate_avoider = 0
+
+                    for j in range(len(temp_df)):
+                        if i != j:
+                            st2 = datetime.datetime.strptime(temp_df.iloc[j, 21], '%I:%M:%S.%f_%p')
+                            et2 = datetime.datetime.strptime(temp_df.iloc[j, 22], '%I:%M:%S.%f_%p')
+
+                            if st1 < st2 < et1 or st1 < et2 < et1:
+                                print('CONFLICT DETECTED')
+                                print(temp_df.iloc[i, 21] + '//' + temp_df.iloc[i, 22])
+                                print('conflicts with')
+                                print(temp_df.iloc[j, 21] + '//' + temp_df.iloc[j, 22])
+
+                                temp_df.iloc[i, 41] = i
+                                temp_df.iloc[j, 41] = i
+
+                                # temp_df.iloc[]
+
+                                if duplicate_avoider == 0:
+                                    conflict_df_new = conflict_df_new.append(temp_df.iloc[i], ignore_index=True)
+                                    # conflict_df_new.iloc[-1, 41] = j
+                                    duplicate_avoider = 1
+
+                                conflict_df_new = conflict_df_new.append(temp_df.iloc[j], ignore_index=True)
+                                # conflict_df_new.iloc[-1,41] = j
+                                # conflict_df.append(temp_df.loc[j])
+        '''if len(temp_df) > 1:
+            print('inside time conflict stage1')
+            x = 0
+            for i in range(len(temp_df)):
+                print('inside time conflict stage2')
+                for j in range(len(temp_df)):
+                    print('inside time conflict stage3')
+                    st1 = datetime.datetime.strptime(temp_df.iloc[x, 21], '%H:%M:%S.%f_%p').strftime("%H:%M:%S.%f_%p")
+                    et1 = datetime.datetime.strptime(temp_df.iloc[x, 22], '%H:%M:%S.%f_%p').strftime("%H:%M:%S.%f_%p")
+
+                    if j != x:
+                        print('inside time conflict stage4')
+                        st2 = datetime.datetime.strptime(temp_df.iloc[j, 21],'%H:%M:%S.%f_%p').strftime("%H:%M:%S.%f_%p")
+                        et2 = datetime.datetime.strptime(temp_df.iloc[j, 22],'%H:%M:%S.%f_%p').strftime("%H:%M:%S.%f_%p")
+
+                        if st1 < st2 < et1 or st1 < et2 < et1:
+                            print('inside time conflict stage5')
+                            print('CONFLICT DETECTED')
+                            print(temp_df.iloc[x,21] + '//' + temp_df.iloc[x,22])
+                            print('conflicts with')
+                            print(temp_df.iloc[j,21] + '//' + temp_df.iloc[j,22])
+                            #print(temp_df.iloc[x])
+                            #print(temp_df.iloc[j])
+                            conflict_df_new = conflict_df_new.append(temp_df.iloc[x], ignore_index=True)
+                            conflict_df_new = conflict_df_new.append(temp_df.iloc[j], ignore_index=True)
+                            #conflict_df.append(temp_df.loc[j])
+
+                x += 1'''
+        '''for j in range(len(temp_df)):
+            date_time_start = datetime.datetime.strptime(temp_df.iloc[j, 21], '%H:%M:%S.%f_%p').strftime("%H:%M:%S.%f_%p")
+            date_time_end = datetime.datetime.strptime(temp_df.iloc[j, 22], '%H:%M:%S.%f_%p').strftime("%H:%M:%S.%f_%p")
+            print(date_time_start)
+            print(date_time_end)
+
+
+
+        if date_time_start>date_time_end:
+            print('date_time_start>date_time_end')
+        elif date_time_start<date_time_end:
+            print('date_time_start>date_time_end')'''
+
+    '''conflict_df_new = pd.DataFrame()
+    conflict_df_new = conflict_df.append(pd.DataFrame(conflict_df))'''
+
+    # conflict_df = pd.concat(conflict_df)
+    conflict_df_new.to_csv('conflict_detected.csv', sep=',', index=False, header=False)
+
+    # df = duplicate_entry_merger(df) 22 23
+    # df.to_csv('timeconflict.csv', sep=',', index=False, header=False)
+
+    print('done')
 
 
 if __name__ == '__main__':
@@ -110,6 +239,8 @@ if __name__ == '__main__':
                         91,
                         97, 110, 112]
     df_filtered_mod = df_modified_file.iloc[:]
+
+    time_conflict(df_modified_file)
 
     if len(df_modified_file.columns) > 140:  # avoids applying filters to short files
         df_filtered_mod = df_modified_file.iloc[:, filtered_columns]
