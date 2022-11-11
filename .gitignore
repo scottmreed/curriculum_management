@@ -1,3 +1,6 @@
-*.csv
+*full.csv
+*out.csv
+*SCHED.csv
+*load.csv
 *.xlx
 *.xlsx
