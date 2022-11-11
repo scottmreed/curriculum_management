@@ -357,13 +357,14 @@ if __name__ == '__main__':
 
     df_modified_input_file_short.to_csv(f'color_diffs/{modified_term}/{new_date}_short_out.csv', sep=',', index=False, header=False)
 
-    df_modified_input_file.to_csv(f'color_diffs/{modified_term}/{new_date}_full_out.csv', sep=',', index=False, header=False)
 
     df_changes = pd.concat([df_filtered_ori.assign(type='original'), df_filtered_mod.assign(type='modified')])
     df_changes = df_changes.drop_duplicates(keep=False, subset=df_changes.columns.difference(['type']))
     # df_changes = df_changes.drop_duplicates(keep=False, subset=df_changes.columns.difference([83]))#83=Inst
-
-    df_modified_file.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_changed_full.csv', sep=',', index=False, header=False)
+    if len(df_modified_file.columns) > 140:
+        df_modified_input_file.to_csv(f'color_diffs/{modified_term}/{new_date}_full_out.csv', sep=',', index=False,
+                                      header=False)
+        df_modified_file.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_changed_full.csv', sep=',', index=False, header=False)
     try:
        df_modified_file_short = df_modified_file.iloc[:, short_columns]
     except:
