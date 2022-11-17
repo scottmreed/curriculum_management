@@ -111,7 +111,7 @@ def time_conflict(df):
             df.iloc[i, j] = format_number(df.iloc[i, j])
 
     df = df.replace("TA", np.nan)
-    df = df.dropna(axis=0)
+    # df = df.dropna(axis=0)
     df['conflict_group'] = ''
 
     if len_array > 140:
@@ -122,14 +122,14 @@ def time_conflict(df):
         instructor_col = 13
         load_col = 15
         type_col = 6
+    print(df.iloc[:, instructor_col])
     instructor_list = df.iloc[:, instructor_col].unique().tolist()
-    instructor_list = list(filter(str.strip, instructor_list))
+    # instructor_list = list(filter(str.strip, instructor_list))
     instructor_load = {"Ins":"load"}
 
     print(instructor_list)
     print(len(instructor_list))
 
-    # conflict_df = []
     conflict_df_new = pd.DataFrame()
 
     for i in range(len(instructor_list)):
@@ -148,11 +148,6 @@ def time_conflict(df):
 
         if 2068 in course_list:
             load_sum -= len([x for x in course_list if x == 2068])
-        # course_list = [element for element in course_list if element not in (lower_lab)]
-
-
-        # if course_num == 2068:
-        #     load_sum -= 1
 
         for x in range(len(load)):
             course_num = (temp_df_all.values[x, 3])
@@ -166,32 +161,27 @@ def time_conflict(df):
                 if str(course_type).startswith('Lab') or str(course_type).startswith('Main Lab'):
                     load_sum += 1
 
-            if course_num == 2039:
-                load_sum += 0.5
+            if course_num == 2039 or course_num == 2069:
+                load_sum -= .75
 
             if course_num == 3018 or course_num == 3118 or \
                     course_num == 4128 or course_num == 4518 or\
                     course_num == 4538 or course_num == 4548 or course_num == 4828:
                 if str(course_type).startswith('Lab') or str(course_type).startswith('Main Lab'):
                     load_sum += .25
-        instructor_load[str(instructor_list[i].replace(',', ' '))] = load_sum
+        instructor_load[str(instructor_list[i])] = load_sum
         print('instructor ', instructor_list[i], 'has load ', load_sum, 'from ', len(load), 'courses')
-        # pd.DataFrame.from_dict(instructor_load, orient='index').to_csv(f'timeconflict_{instructor_list[i]}.csv', sep=',', index=False, header=False)
-        # print('temp_df')
         print(temp_df_all)
         if len_array < 140:
             print('not checking for time conflicts')
         else:
-            for o in range(7):
-                temp_df = temp_df_all.loc[df.iloc[:, 23 + o] == 'Y']
+            for day in range(7):
+                temp_df = temp_df_all.loc[df.iloc[:, 23 + day] == 'Y']
 
                 if len(temp_df) > 1:
                     for i in range(len(temp_df)):
                         st1 = datetime.datetime.strptime(temp_df.iloc[i, 21], '%I:%M:%S.%f_%p')
                         et1 = datetime.datetime.strptime(temp_df.iloc[i, 22], '%I:%M:%S.%f_%p')
-
-                        # DSCIB3 time conflict
-
                         duplicate_avoider = 0
 
                         for j in range(len(temp_df)):
@@ -208,23 +198,14 @@ def time_conflict(df):
                                     temp_df.iloc[i, 41] = i
                                     temp_df.iloc[j, 41] = i
 
-                                    # temp_df.iloc[]
-
                                     if duplicate_avoider == 0:
                                         conflict_df_new = conflict_df_new.append(temp_df.iloc[i], ignore_index=True)
-                                        # conflict_df_new.iloc[-1, 41] = j
                                         duplicate_avoider = 1
 
                                     conflict_df_new = conflict_df_new.append(temp_df.iloc[j], ignore_index=True)
-                                    # conflict_df_new.iloc[-1,41] = j
-                                    # conflict_df.append(temp_df.loc[j])
 
     conflict_df_new.to_csv('conflict_detected.csv', sep=',', index=False, header=False)
     return instructor_load
-    # df = duplicate_entry_merger(df) 22 23
-    # df.to_csv('timeconflict.csv', sep=',', index=False, header=False)
-
-    # print('done')
 
 
 if __name__ == '__main__':
@@ -249,8 +230,6 @@ if __name__ == '__main__':
 
     if len(df_modified_file.columns) > 140: # avoids applying filters to short files
         instructor_load = time_conflict(df_modified_file)
-
-    # if len(df_modified_file.columns) > 140:  # avoids applying filters to short files
         df_filtered_mod = df_modified_file.iloc[:, filtered_columns]
         modified_term = df_filtered_mod.iloc[0, 1]
     else:
@@ -292,9 +271,11 @@ if __name__ == '__main__':
         print('pathFile is:', pathFile)
 
     df_original_file = pd.read_csv(pathFile, header=None)
-
+    dept_col = 14
+    if len(df_original_file.columns) < 140:
+        dept_col = 2
     # df_original_file, ori_date = read_csv('ori')
-    df_original_file = df_original_file.loc[df_original_file.iloc[:, 14] == "CHEM"]
+    df_original_file = df_original_file.loc[df_original_file.iloc[:, dept_col] == "CHEM"]
 
     for i in range(df_original_file.shape[0]):
         for j in range(df_original_file.shape[1]):
@@ -326,7 +307,6 @@ if __name__ == '__main__':
 
     #
     print('term' + modified_term)
-
     Path("color_diffs/" + modified_term).mkdir(parents=True, exist_ok=True)
 
     # ----------------
@@ -339,40 +319,26 @@ if __name__ == '__main__':
     except:
         df_modified_input_file_short = df_modified_input_file
 
-    # try:
-    # load_df = pd.DataFrame.from_dict(instructor_load)
-    # ff = pd.Series(instructor_load)
-    # gg = pd.Series(instructor_load.values)
-    # kk = pd.concat(ff, df_modified_input_file_short)
-    # df2 = df_modified_input_file_short.assign(address=[instructor_load.keys()])
-    # df_modified_input_file_short['Instructor']=instructor_load
-    # df_modified_input_file_short['Instructor_k'] = instructor_load.keys()
-    # df_modified_input_file_short['Instructor_v'] = instructor_load.values()
-    # df_modified_input_file_short = pd.concat([df_modified_input_file_short, ff], sort=False)
-    #
-    # load_df.reset_index(inplace=True)
-    # df_modified_input_file_short = pd.concat([df_modified_input_file_short, ff])
-    # except:
-    #     'a'
-
     df_modified_input_file_short.to_csv(f'color_diffs/{modified_term}/{new_date}_short_out.csv', sep=',', index=False, header=False)
-
 
     df_changes = pd.concat([df_filtered_ori.assign(type='original'), df_filtered_mod.assign(type='modified')])
     df_changes = df_changes.drop_duplicates(keep=False, subset=df_changes.columns.difference(['type']))
     # df_changes = df_changes.drop_duplicates(keep=False, subset=df_changes.columns.difference([83]))#83=Inst
-    if len(df_modified_file.columns) > 140:
-        df_modified_input_file.to_csv(f'color_diffs/{modified_term}/{new_date}_full_out.csv', sep=',', index=False,
-                                      header=False)
-        df_modified_file.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_changed_full.csv', sep=',', index=False, header=False)
     try:
        df_modified_file_short = df_modified_file.iloc[:, short_columns]
     except:
         df_modified_file_short = df_modified_file
 
+    if len(df_modified_file.columns) > 140:
+        df_modified_input_file.to_csv(f'color_diffs/{modified_term}/{new_date}_full_out.csv', sep=',', index=False,
+                                      header=False)
+        df_modified_file.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_changed_full.csv', sep=',', index=False, header=False)
+        df_modified_file_short = df_modified_file_short.drop_duplicates(keep='first', subset=[4, 7, 14, 15, 16, 18, 21])  # works sometimes
+
+
     # df_modified_file_short = df_modified_file_short.drop_duplicates(keep=False, subset=df_changes.columns.difference([0,1,2]))#83=Inst
-    # df_modified_file_short = df_modified_file_short.drop_duplicates(keep='first', subset=[4, 7, 14, 15, 16, 18, 21])# works sometimes
-    df_modified_file_short = df_modified_file_short.drop_duplicates(keep='first', subset=[1,2,3,4,5,6,7,8,9])  # works sometimes
+    else:
+        df_modified_file_short = df_modified_file_short.drop_duplicates(keep='first', subset=[1,2,3,4,5,6,7,8,9])  # works sometimes
 
     # df_modified_file_short.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_diff_out_short.csv', sep=',', index=False, header=False)
     df_modified_file_short.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_changed_short.csv', sep=',', index=False, header=False)
@@ -391,7 +357,6 @@ if __name__ == '__main__':
     c = 0
     rows_count = df_changes_arranged.shape[0]
     cols_count = df_changes_arranged.shape[1]
-    # print('rows_count:' + str(rows_count))
 
     changed_id = []
     unique_id = []
