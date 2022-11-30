@@ -209,7 +209,6 @@ def time_conflict(df):
 
 
 if __name__ == '__main__':
-    # pathFile = latest_edited_file_glob('changed')
     today = date.today()
 
     df_modified_input_file, new_date = read_csv('new')
@@ -222,11 +221,6 @@ if __name__ == '__main__':
     filtered_columns = [0, 4, 7, 15, 16, 17, 18, 19, 21, 23, 25, 27, 34, 35, 36, 38, 51, 53, 57,
                         66, 67, 81, 82, 83, 90, 91, 97, 106, 110, 112]
     df_filtered_mod = df_modified_file.iloc[:]
-
-    # cols = list(df_filtered_mod.columns.values)  # Make a list of all of the columns in the df
-    # cols.pop(cols.index(34))  # Remove b from list
-    # cols.pop(cols.index(35))  # Remove x from list
-    # df_new = df_filtered_mod[[cols]]
 
     if len(df_modified_file.columns) > 140: # avoids applying filters to short files
         instructor_load = time_conflict(df_modified_file)
@@ -305,14 +299,12 @@ if __name__ == '__main__':
     # ff = pd.pivot_table(df_instructor, values=['83'], index=['53', '83'], columns=['53'], aggfunc=np.sum, fill_value=0)
 
 
-    #
     print('term' + modified_term)
     Path("color_diffs/" + modified_term).mkdir(parents=True, exist_ok=True)
 
-    # ----------------
     df_filtered_ori = duplicate_entry_merger(df_filtered_ori)
     df_filtered_mod = duplicate_entry_merger(df_filtered_mod)
-    # ----------------
+
     short_columns = [4, 7, 14, 15, 16, 18, 21, 35, 36, 65, 66, 67, 81, 83, 97, 106]
     try:
         df_modified_input_file_short = df_modified_input_file.iloc[:, short_columns]
@@ -335,22 +327,15 @@ if __name__ == '__main__':
         df_modified_file.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_changed_full.csv', sep=',', index=False, header=False)
         df_modified_file_short = df_modified_file_short.drop_duplicates(keep='first', subset=[4, 7, 14, 15, 16, 18, 21])  # works sometimes
 
-
-    # df_modified_file_short = df_modified_file_short.drop_duplicates(keep=False, subset=df_changes.columns.difference([0,1,2]))#83=Inst
     else:
         df_modified_file_short = df_modified_file_short.drop_duplicates(keep='first', subset=[1,2,3,4,5,6,7,8,9])  # works sometimes
 
-    # df_modified_file_short.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_diff_out_short.csv', sep=',', index=False, header=False)
     df_modified_file_short.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_changed_short.csv', sep=',', index=False, header=False)
 
     df_changes_arranged = df_changes
 
     df_changes_arranged = df_changes_arranged.sort_values(
         by=[df_changes_arranged.columns[0], df_changes_arranged.columns[7]], ascending=True) #arrange by coursenum and class ID
-
-    # df_changes_arranged.to_csv(f'color_diffs/{modified_term}/{ori_date}_{new_date}_diff_out_arranged.csv', sep=',', index=False,
-    #                            header=False)
-
 
     j = 0
     i = 0
@@ -370,20 +355,16 @@ if __name__ == '__main__':
     for i in range(rows_count - 1):
         if ((df_changes_arranged.iloc[i, 0] == df_changes_arranged.iloc[i + 1, 0]) and (
                 df_changes_arranged.iloc[i, 7] == df_changes_arranged.iloc[i + 1, 7])):
-            # print("same rows detected" + str(i))
             j = 0
 
             for c in range(cols_count):
                 if c < 29:
                     if df_changes_arranged.iloc[i, c] != df_changes_arranged.iloc[i + 1, c]:
-                        # print('--- different column' + str(c))
                         changed_id.append([i, c])
-                        # changed_id.append([i + 1, c])
 
         else:
             j = j + 1
             if j >= 2:
-                # print('unique row detected' + str(i))
                 unique_id.append([i + 1, 1])
                 j = 0
 
@@ -393,7 +374,6 @@ if __name__ == '__main__':
 
             else:
                 'a'
-                # print("different rows detected" + str(i))
 
     wb = Workbook()
     ws = wb.active
@@ -410,11 +390,9 @@ if __name__ == '__main__':
 
     for l in range(len(df_changes_arranged)):
         if ws.cell(l + 1, 30).value == "original":
-            # print("original")
             for p in range(cols_count):
                 ws.cell(l + 1, p + 1).fill = fill_pattern_from_original
         elif ws.cell(l + 1, 30).value == "modified":
-            # print("modified")
             for p in range(cols_count):
                 ws.cell(l + 1, p + 1).fill = fill_pattern_from_modified
 
@@ -433,7 +411,6 @@ if __name__ == '__main__':
 
                 ws1.cell(i+1, 1).value = k
                 ws1.cell(i+1, 2).value = v
-
             # wb2.save("color_diffs/" + modified_term + "/" + today.isoformat() + "_load_output.xlsx")
 
     except:
